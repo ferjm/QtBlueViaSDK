@@ -8,15 +8,20 @@ QT       += network xml
 
 QT       -= gui
 
-TARGET = QtBlueViaSDK
+TARGET = qtbluevia
 TEMPLATE = lib
 
 DEFINES += QTBLUEVIASDK_LIBRARY
 
-SOURCES += qtblueviasdk.cpp
+SOURCES += qtblueviasdk.cpp \
+    qtblueviaoauth.cpp
 
 HEADERS += qtblueviasdk.h\
-        QtBlueViaSDK_global.h
+        QtBlueViaSDK_global.h \
+    qtblueviaoauth.h
+
+INCLUDEPATH += /usr/local/include
+LIBS += -L/usr/local/lib -lqtrest
 
 header_files.files = $$HEADERS
 header_files.path = /usr/local/include/libqtblueviasdk
