@@ -18,42 +18,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef QTBLUEVIAOAUTH_H
-#define QTBLUEVIAOAUTH_H
+#ifndef QTBLUEVIASDK_GLOBAL_H
+#define QTBLUEVIASDK_GLOBAL_H
 
-#include <QObject>
-#include <QUrl>
+#include <QtCore/qglobal.h>
 
-#include "libqtrest/qtrestoauth.h"
+#if defined(QTBLUEVIASDK_LIBRARY)
+#  define QTBLUEVIASDKSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define QTBLUEVIASDKSHARED_EXPORT Q_DECL_IMPORT
+#endif
 
-class QtBlueViaOAuth : public QObject
-{
-    Q_OBJECT
-public:
-    explicit QtBlueViaOAuth(QString consumerKey,
-                            QString consumerSecret,
-                            QObject *parent = 0);
-    ~QtBlueViaOAuth();
-
-    void getRequestToken();
-    void getAccessToken(QString requestToken, QString requestTokenSecret, QString verificationCode);
-
-private:
-    QString _consumerKey;
-    QString _consumerSecret;
-    QString _requestToken;
-    QString _requestTokenSecret;
-    QString _accessToken;
-    QString _accessTokenSecret;
-
-    OAuth *oAuth;
-
-signals:
-
-public slots:
-    void onTemporaryTokenReceived(QString token, QString tokenSecret, QUrl authorizationUrl);
-    void onAccTokensReceived(QString token, QString tokenSecret);
-
-};
-
-#endif // QTBLUEVIAOAUTH_H
+#endif // QTBLUEVIASDK_GLOBAL_H

@@ -1,9 +1,3 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2011-08-22T17:03:20
-#
-#-------------------------------------------------
-
 QT       += network xml
 
 QT       -= gui
@@ -17,8 +11,8 @@ SOURCES += qtblueviasdk.cpp \
     qtblueviaoauth.cpp
 
 HEADERS += qtblueviasdk.h\
-        QtBlueViaSDK_global.h \
-    qtblueviaoauth.h
+    qtblueviaoauth.h \
+    qtblueviasdkglobal.h
 
 INCLUDEPATH += /usr/local/include
 LIBS += -L/usr/local/lib -lqtrest
