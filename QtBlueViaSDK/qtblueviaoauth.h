@@ -53,7 +53,7 @@ signals:
 public slots:
     void onTemporaryTokenReceived(QString token, QString tokenSecret, QUrl authorizationUrl);
     void onAccTokensReceived(QString token, QString tokenSecret);
-
+    void onError(QMultiMap<QString,QString> errorMap);
 };
 
 #endif // QTBLUEVIAOAUTH_H

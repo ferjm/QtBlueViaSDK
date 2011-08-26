@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "qtblueviaoauth.h"
+#include "libqtrest/qtrest.h"
 
 //TODO: Use QSettings and split uri
 #define OAUTH_REQUEST_TOKEN_URI "https://api.bluevia.com/services/REST/Oauth/getRequestToken"
@@ -33,6 +34,19 @@ QtBlueViaOAuth::QtBlueViaOAuth(QString consumerKey,
     _consumerSecret(consumerSecret)
 {
     oAuth = NULL;
+
+    QStringList properties;
+    properties.append("ClientException");
+    properties.append("exceptionCategory");
+    properties.append("exceptionId");
+    properties.append("text");
+    QtRest::getInstance()->addProperties(properties);
+
+    QStringList errors;
+    errors.append("ClientException");
+
+    oAuth = new OAuth(_consumerKey,_consumerSecret,this);
+    oAuth->setTagErrorList(errors);
 }
 
 QtBlueViaOAuth::~QtBlueViaOAuth()
@@ -52,8 +66,9 @@ void QtBlueViaOAuth::getAccessToken(QString requestToken, QString requestTokenSe
 {
     if(oAuth == NULL)
         oAuth = new OAuth(_consumerKey,_consumerSecret,this);
-    oAuth->getAccessToken(requestToken,requestTokenSecret,verificationCode,QUrl(OAUTH_ACCESS_TOKEN_URI),HttpRequest::POST);
     connect(oAuth, SIGNAL(accessTokenReceived(QString,QString)), this, SLOT(onAccTokensReceived(QString,QString)));
+    connect(oAuth, SIGNAL(error(QMultiMap<QString,QString>)),this,SLOT(onError(QMultiMap<QString,QString>)));
+    oAuth->getAccessToken(requestToken,requestTokenSecret,verificationCode,QUrl(OAUTH_ACCESS_TOKEN_URI),HttpRequest::POST);
 }
 
 void QtBlueViaOAuth::onTemporaryTokenReceived(QString token, QString tokenSecret, QUrl authorizationUrl)
@@ -71,4 +86,11 @@ void QtBlueViaOAuth::onAccTokensReceived(QString token, QString tokenSecret)
     this->_accessTokenSecret = tokenSecret;
     qDebug() << "Token: " << token;
     qDebug() << "TokenSecret: " << tokenSecret;
+}
+
+void QtBlueViaOAuth::onError(QMultiMap<QString,QString> errorMap)
+{
+    QList<QString> values = errorMap.values("text");
+    for (int i = 0; i < values.size(); ++i)
+        qDebug() << values.at(i);
 }
