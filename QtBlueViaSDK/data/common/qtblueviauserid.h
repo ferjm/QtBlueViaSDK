@@ -26,7 +26,7 @@ public:
      */
     enum UserIdType { PHONE_NUMBER, ANY_URI, IPV4_ADDRESS, IPV6_ADDRESS, ALIAS, OTHER_ID };
 
-    QtBlueViaUserId() {};
+    QtBlueViaUserId() {}
 
     /**
       Constructor

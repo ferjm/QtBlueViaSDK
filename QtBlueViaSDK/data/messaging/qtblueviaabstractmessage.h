@@ -3,7 +3,7 @@
 
 #include <QList>
 
-#include "data/common/qtblueviauserid.h"
+#include "qtblueviauserid.h"
 
 /**
   Abstract SMS class that represents the different messages that will
@@ -66,7 +66,7 @@ public:
         return true;
     }
 
-private:
+protected:
     QList<QtBlueViaUserId> _addresList;
     QtBlueViaUserId _originAddress;
 
