@@ -52,6 +52,8 @@ QString QtBlueViaSmsClient::sendSms(QtBlueViaSmsMessage message)
     QMultiMap<int,QString> namespaces;
     namespaces.insert(NamespaceId::tns,"http://www.telefonica.com/schemas/UNICA/REST/sms/v1/");
     namespaces.insert(NamespaceId::tns1,"http://www.telefonica.com/schemas/UNICA/REST/common/v1");
+    namespaces.insert(NamespaceId::tns2,"http://www.w3.org/2001/XMLSchema-instance");
+    namespaces.insert(NamespaceId::tns3,"http://www.telefonica.com/schemas/UNICA/REST/sms/v1/UNICA_API_REST_sms_types_v1_0.xsd");
     XMLSerializer serializer("",namespaces);
     QString serializedBody = serializer.serialize(smsText);
     delete smsText;
@@ -59,9 +61,10 @@ QString QtBlueViaSmsClient::sendSms(QtBlueViaSmsMessage message)
     //TODO: settings
     request->setRequestEndpoint(QUrl("https://api.bluevia.com/services/REST/SMS_Sandbox/outbound/requests?version=v1"));
     request->setHttpMethod(HttpRequest::POST);
-    request->setAuthHeader();
+    request->setAuthHeader();    
     request->setRequestBody(QByteArray(serializedBody.toAscii()));
     request->setHeader(QByteArray("Content-Type"),QByteArray("application/xml"));
+    request->setHeader(QByteArray("Accept"),QByteArray("*/*"));
     connect(&this->httpConnector,
            SIGNAL(requestFinished(QByteArray)),
            this,
@@ -82,4 +85,9 @@ void QtBlueViaSmsClient::getDeliveryStatus(QString smsId)
            this,
            SLOT(onSmsSent(QByteArray)));
     QByteArray smsResult = this->httpConnector.httpRequest(request);
+}
+
+void QtBlueViaSmsClient::onSmsSent(QByteArray reply)
+{
+    qDebug() << reply;
 }

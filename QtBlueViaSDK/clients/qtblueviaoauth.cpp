@@ -58,8 +58,8 @@ void QtBlueViaOAuth::getRequestToken()
 {
     if(oAuth == NULL)
         oAuth = new OAuth(_consumerKey,_consumerSecret,this);
-    oAuth->getRequestToken(QUrl(OAUTH_REQUEST_TOKEN_URI),QUrl(OAUTH_AUTHORIZATION_URI),HttpRequest::POST);
     connect(oAuth, SIGNAL(temporaryTokenReceived(QString,QString,QUrl)), this, SLOT(onTemporaryTokenReceived(QString,QString,QUrl)));
+    oAuth->getRequestToken(QUrl(OAUTH_REQUEST_TOKEN_URI),QUrl(OAUTH_AUTHORIZATION_URI),HttpRequest::POST);    
 }
 
 void QtBlueViaOAuth::getAccessToken(QString requestToken, QString requestTokenSecret, QString verificationCode)
@@ -78,6 +78,7 @@ void QtBlueViaOAuth::onTemporaryTokenReceived(QString token, QString tokenSecret
     qDebug() << "Token: " << token;
     qDebug() << "TokenSecret: " << tokenSecret;
     qDebug() << "Authorization URL: " << authorizationUrl.toString();
+    emit requestTokenRetrieved(token,tokenSecret,authorizationUrl);
 }
 
 void QtBlueViaOAuth::onAccTokensReceived(QString token, QString tokenSecret)
@@ -86,6 +87,7 @@ void QtBlueViaOAuth::onAccTokensReceived(QString token, QString tokenSecret)
     this->_accessTokenSecret = tokenSecret;
     qDebug() << "Token: " << token;
     qDebug() << "TokenSecret: " << tokenSecret;
+    emit accessTokenRetrieved(token,tokenSecret);
 }
 
 void QtBlueViaOAuth::onError(QMultiMap<QString,QString> errorMap)
@@ -93,4 +95,20 @@ void QtBlueViaOAuth::onError(QMultiMap<QString,QString> errorMap)
     QList<QString> values = errorMap.values("text");
     for (int i = 0; i < values.size(); ++i)
         qDebug() << values.at(i);
+}
+
+QString QtBlueViaOAuth::getRetrievedAccessToken() {
+    return this->_accessToken;
+}
+
+QString QtBlueViaOAuth::getRetrievedAccessTokenSecret() {
+    return this->_accessTokenSecret;
+}
+
+QString QtBlueViaOAuth::getRetrievedRequestToken() {
+    return this->_requestToken;
+}
+
+QString QtBlueViaOAuth::getRetrievedRequesTokenSecret() {
+    return this->_requestTokenSecret;
 }

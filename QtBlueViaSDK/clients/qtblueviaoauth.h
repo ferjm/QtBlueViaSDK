@@ -38,6 +38,11 @@ public:
     void getRequestToken();
     void getAccessToken(QString requestToken, QString requestTokenSecret, QString verificationCode);
 
+    QString getRetrievedAccessToken();
+    QString getRetrievedAccessTokenSecret();
+    QString getRetrievedRequestToken();
+    QString getRetrievedRequesTokenSecret();
+
 private:
     QString _consumerKey;
     QString _consumerSecret;
@@ -49,6 +54,8 @@ private:
     OAuth *oAuth;
 
 signals:
+    void requestTokenRetrieved(QString token, QString tokenSecret, QUrl authorizationUrl);
+    void accessTokenRetrieved(QString token, QString tokenSecret);
 
 public slots:
     void onTemporaryTokenReceived(QString token, QString tokenSecret, QUrl authorizationUrl);
