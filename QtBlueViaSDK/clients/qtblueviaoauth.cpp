@@ -35,12 +35,12 @@ QtBlueViaOAuth::QtBlueViaOAuth(QString consumerKey,
 {
     oAuth = NULL;
 
-    QStringList properties;
+    /*QStringList properties;
     properties.append("ClientException");
     properties.append("exceptionCategory");
     properties.append("exceptionId");
     properties.append("text");
-    QtRest::getInstance()->addProperties(properties);
+    QtRest::getInstance()->addProperties(properties);*/
 
     QStringList errors;
     errors.append("ClientException");

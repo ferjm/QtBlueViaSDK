@@ -2,19 +2,14 @@
 #include "libqtrest/qtrestientity.h"
 #include "libqtrest/qtrestoauthdata.h"
 #include "libqtrest/qtrestxmlserializer.h"
+#include "libqtrest/qtrestxmlparser.h"
+
+#include <QPair>
 
 QtBlueViaSmsClient::QtBlueViaSmsClient(IAuthentication *authentication,QObject *parent) :
     QtRestClient(1,parent)
 {
-    this->setAuthenticationData(authentication);
-    /*QStringList properties;
-    properties.add("smsText");
-    properties.add("address");
-    properties.add("phoneNumber");
-    properties.add("message");
-    properties.add("originAddress");
-    properties.add("alias");
-    this->setPropertiesTags(properties);*/
+    this->setAuthenticationData(authentication);    
 }
 
 QtBlueViaSmsClient::~QtBlueViaSmsClient()
@@ -59,35 +54,78 @@ QString QtBlueViaSmsClient::sendSms(QtBlueViaSmsMessage message)
     delete smsText;
     HttpRequest *request = authenticatedRequest();
     //TODO: settings
-    request->setRequestEndpoint(QUrl("https://api.bluevia.com/services/REST/SMS_Sandbox/outbound/requests?version=v1"));
+    request->setRequestEndpoint(QUrl("https://api.bluevia.com/services/REST/SMS/outbound/requests?version=v1"));
     request->setHttpMethod(HttpRequest::POST);
     request->setAuthHeader();    
     request->setRequestBody(QByteArray(serializedBody.toAscii()));
     request->setHeader(QByteArray("Content-Type"),QByteArray("application/xml"));
     request->setHeader(QByteArray("Accept"),QByteArray("*/*"));
     connect(&this->httpConnector,
-           SIGNAL(requestFinished(QByteArray)),
+            SIGNAL(headersRetrieved(QList<QNetworkReply::RawHeaderPair>)),
            this,
-           SLOT(onSmsSent(QByteArray)));
-    QByteArray smsResult = this->httpConnector.httpRequest(request);
+           SLOT(onSmsSent(QList<QNetworkReply::RawHeaderPair>)));
+    this->httpConnector.httpRequest(request);
     delete request;
 }
 
-void QtBlueViaSmsClient::getDeliveryStatus(QString smsId)
+void QtBlueViaSmsClient::getDeliveryStatus(QString resourceUrl)
 {
     HttpRequest *request = authenticatedRequest();
     //TODO: settings
-    request->setRequestEndpoint(QUrl("https://api.bluevia.com/services/REST/SMS_Sandbox/outbound/requests/"+smsId+"/deliverystatus?version=v1"));
+    request->setRequestEndpoint(QUrl(resourceUrl+"?version=v1"));
     request->setHttpMethod(HttpRequest::GET);
     request->setAuthHeader();
     connect(&this->httpConnector,
            SIGNAL(requestFinished(QByteArray)),
            this,
-           SLOT(onSmsSent(QByteArray)));
+           SLOT(onStatusRetrieved(QByteArray)));
     QByteArray smsResult = this->httpConnector.httpRequest(request);
 }
 
-void QtBlueViaSmsClient::onSmsSent(QByteArray reply)
+void QtBlueViaSmsClient::onSmsSent(QList<QNetworkReply::RawHeaderPair> headers)
+{    
+    for(int i = 0; i < headers.size(); i++) {        
+        if(headers.at(i).first == QString("Location")) {
+            emit smsSent(headers.at(i).second);
+            return;
+        }
+    }
+}
+
+void QtBlueViaSmsClient::onStatusRetrieved(QByteArray status)
 {
-    qDebug() << reply;
+    XMLParser parser;
+    try {
+        IEntity *entity = parser.parse(status,status.size());
+        if((entity != NULL)&&(entity->getId() != Id::NULLID)) {
+            QList<QPair<QString,QString> > deliveryStatusList;
+            if(entity->getId() == Id::smsDeliveryStatus) {
+                IEntity::itConstEntities begin,end;
+                entity->getEntityList(begin,end);
+                if(begin != end)
+                {
+                    for(IEntity::itConstEntities it = begin; it != end; it++ )
+                    {
+                        IEntity *sit = dynamic_cast<IEntity *>(*it);
+                        if((sit != NULL) && (sit->getId() == Id::smsDeliveryStatus)) {
+                            IEntity *address = sit->getEntity(Id::address);
+                            IEntity *phoneNumber = address->getEntity(Id::phoneNumber);
+                            QString addressValue = phoneNumber->getValue();
+                            IEntity *deliveryStatusEntity = sit->getEntity(Id::deliveryStatus);
+                            QString deliveryStatusValue = deliveryStatusEntity->getValue();
+                            deliveryStatusList.append(qMakePair(addressValue,deliveryStatusValue));
+                        }
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                //TODO: error handling
+                return;
+            }
+            emit deliveryStatusRetrieved(deliveryStatusList);
+        }
+    } catch (XMLParserException e) {
+
+    }
 }

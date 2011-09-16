@@ -21,20 +21,29 @@ public:
     /**
       Allows to send an SMS to multiple addresses. It returns a string containing the SMSID
       of the sent SMS
+      It emits smsSent signal
       @param message The text of the message
       @param addresses The addresses of the recipients of the message
       */
     QString sendSms(QString message,QList<QtBlueViaUserId> addresses);
 
-    void getDeliveryStatus(QString smsId);
+    /**
+      Gets the status of the sent SMS.
+      It emits deliveryStatusRetrieved signal
+      @param QString resourceUrl Url of the SMS resource
+      */
+    void getDeliveryStatus(QString resourceUrl);
 
 private:
     QString sendSms(QtBlueViaSmsMessage message);
 
 signals:
+    void smsSent(QString);
+    void deliveryStatusRetrieved(QList<QPair<QString,QString> >);
 
 public slots:
-    void onSmsSent(QByteArray reply);
+    void onSmsSent(QList<QNetworkReply::RawHeaderPair>);
+    void onStatusRetrieved(QByteArray);
 
 };
 
