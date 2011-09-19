@@ -17,19 +17,19 @@ QtBlueViaSmsClient::~QtBlueViaSmsClient()
 
 }
 
-QString QtBlueViaSmsClient::sendSms(QString message, QtBlueViaUserId address)
+void QtBlueViaSmsClient::sendSms(QString message, QtBlueViaUserId address)
 {
     QtBlueViaSmsMessage sms(address,message);
-    return this->sendSms(sms);
+    this->sendSms(sms);
 }
 
-QString QtBlueViaSmsClient::sendSms(QString message, QList<QtBlueViaUserId> addresses)
+void QtBlueViaSmsClient::sendSms(QString message, QList<QtBlueViaUserId> addresses)
 {
     QtBlueViaSmsMessage sms(addresses,message);
-    return this->sendSms(sms);
+    this->sendSms(sms);
 }
 
-QString QtBlueViaSmsClient::sendSms(QtBlueViaSmsMessage message)
+void QtBlueViaSmsClient::sendSms(QtBlueViaSmsMessage message)
 {
     IEntity *smsText = new IEntity(NamespaceId::tns,Id::smsText);
     for(int i=0;i<message.getDestinationAddresses().size();i++) {
@@ -52,6 +52,8 @@ QString QtBlueViaSmsClient::sendSms(QtBlueViaSmsMessage message)
     XMLSerializer serializer("",namespaces);
     QString serializedBody = serializer.serialize(smsText);
     delete smsText;
+
+
     HttpRequest *request = authenticatedRequest();
     //TODO: settings
     request->setRequestEndpoint(QUrl("https://api.bluevia.com/services/REST/SMS/outbound/requests?version=v1"));
@@ -84,7 +86,7 @@ void QtBlueViaSmsClient::getDeliveryStatus(QString resourceUrl)
 
 void QtBlueViaSmsClient::onSmsSent(QList<QNetworkReply::RawHeaderPair> headers)
 {    
-    for(int i = 0; i < headers.size(); i++) {        
+    for(int i = 0; i < headers.size(); i++) {
         if(headers.at(i).first == QString("Location")) {
             emit smsSent(headers.at(i).second);
             return;

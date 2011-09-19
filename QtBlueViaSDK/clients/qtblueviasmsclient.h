@@ -17,7 +17,7 @@ public:
       @param message The text of the message
       @param address The address of the recipient of the message
       */
-    QString sendSms(QString message,QtBlueViaUserId address);
+    void sendSms(QString message,QtBlueViaUserId address);
     /**
       Allows to send an SMS to multiple addresses. It returns a string containing the SMSID
       of the sent SMS
@@ -25,7 +25,7 @@ public:
       @param message The text of the message
       @param addresses The addresses of the recipients of the message
       */
-    QString sendSms(QString message,QList<QtBlueViaUserId> addresses);
+    void sendSms(QString message,QList<QtBlueViaUserId> addresses);
 
     /**
       Gets the status of the sent SMS.
@@ -35,7 +35,7 @@ public:
     void getDeliveryStatus(QString resourceUrl);
 
 private:
-    QString sendSms(QtBlueViaSmsMessage message);
+    void sendSms(QtBlueViaSmsMessage message);
 
 signals:
     void smsSent(QString);
