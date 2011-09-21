@@ -10,6 +10,8 @@ QtBlueViaSmsClient::QtBlueViaSmsClient(IAuthentication *authentication,QObject *
     QtRestClient(1,parent)
 {
     this->setAuthenticationData(authentication);    
+    errorList.append("ClientException");
+    errorList.append("ServerException");
 }
 
 QtBlueViaSmsClient::~QtBlueViaSmsClient()
@@ -66,6 +68,14 @@ void QtBlueViaSmsClient::sendSms(QtBlueViaSmsMessage message)
             SIGNAL(headersRetrieved(QList<QNetworkReply::RawHeaderPair>)),
            this,
            SLOT(onSmsSent(QList<QNetworkReply::RawHeaderPair>)));
+    connect(&this->httpConnector,
+            SIGNAL(requestFinished(QByteArray)),
+            this,
+            SLOT(onSmsError(QByteArray)));
+    connect(&this->httpConnector,
+            SIGNAL(requestError(QString)),
+            this,
+            SLOT(onSmsError(QString)));
     this->httpConnector.httpRequest(request);
     delete request;
 }
@@ -94,6 +104,32 @@ void QtBlueViaSmsClient::onSmsSent(QList<QNetworkReply::RawHeaderPair> headers)
     }
 }
 
+void QtBlueViaSmsClient::onSmsError(QByteArray status)
+{
+    if(status.contains("xml")) {
+        XMLParser parser;
+        IEntity *entity = parser.parse(status,status.size());
+        IEntity::itConstEntities begin,end;
+        entity->getEntityList(begin,end);
+        if(begin != end) {
+            if(this->errorList.contains(entity->getName(),Qt::CaseInsensitive)) {
+                for(IEntity::itConstEntities it = begin; it != end; it++ ) {
+                    IEntity *sit = dynamic_cast<IEntity *>(*it);
+                    if(sit->getName() == "text")
+                        emit error(sit->getValue());
+                }
+            } else {
+                qDebug() << "False alarm...";
+            }
+        }
+   }
+}
+
+void QtBlueViaSmsClient::onSmsError(QString status)
+{
+    emit error(status);
+}
+
 void QtBlueViaSmsClient::onStatusRetrieved(QByteArray status)
 {
     XMLParser parser;
@@ -119,10 +155,11 @@ void QtBlueViaSmsClient::onStatusRetrieved(QByteArray status)
                         }
                     }
                 } else {
+                    emit error(QString("Error: Wrong entity list"));
                     return;
                 }
             } else {
-                //TODO: error handling
+                emit error(QString("Error: Not smsDeliveryStatus retrieved"));
                 return;
             }
             emit deliveryStatusRetrieved(deliveryStatusList);

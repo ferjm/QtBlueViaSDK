@@ -1,7 +1,10 @@
 #ifndef QTBLUEVIASMSCLIENT_H
 #define QTBLUEVIASMSCLIENT_H
 
+#include <QMultiMap>
+
 #include "libqtrest/qtrestclient.h"
+#include "libqtrest/qtrestoauthdata.h"
 #include "qtblueviauserid.h"
 #include "qtblueviasmsmessage.h"
 
@@ -36,13 +39,17 @@ public:
 
 private:
     void sendSms(QtBlueViaSmsMessage message);
+    QStringList errorList;
 
 signals:
     void smsSent(QString);
+    void error(QString);
     void deliveryStatusRetrieved(QList<QPair<QString,QString> >);
 
 public slots:
     void onSmsSent(QList<QNetworkReply::RawHeaderPair>);
+    void onSmsError(QByteArray);
+    void onSmsError(QString);
     void onStatusRetrieved(QByteArray);
 
 };
