@@ -33,14 +33,7 @@ QtBlueViaOAuth::QtBlueViaOAuth(QString consumerKey,
     _consumerKey(consumerKey),
     _consumerSecret(consumerSecret)
 {
-    oAuth = NULL;
-
-    /*QStringList properties;
-    properties.append("ClientException");
-    properties.append("exceptionCategory");
-    properties.append("exceptionId");
-    properties.append("text");
-    QtRest::getInstance()->addProperties(properties);*/
+    oAuth = NULL;    
 
     QStringList errors;
     errors.append("ClientException");
@@ -59,6 +52,7 @@ void QtBlueViaOAuth::getRequestToken()
     if(oAuth == NULL)
         oAuth = new OAuth(_consumerKey,_consumerSecret,this);
     connect(oAuth, SIGNAL(temporaryTokenReceived(QString,QString,QUrl)), this, SLOT(onTemporaryTokenReceived(QString,QString,QUrl)));
+    connect(oAuth,SIGNAL(error(QMultiMap<QString,QString>)),this,SLOT(onError(QMultiMap<QString,QString>)));
     oAuth->getRequestToken(QUrl(OAUTH_REQUEST_TOKEN_URI),QUrl(OAUTH_AUTHORIZATION_URI),HttpRequest::POST);    
 }
 
@@ -95,6 +89,7 @@ void QtBlueViaOAuth::onError(QMultiMap<QString,QString> errorMap)
     QList<QString> values = errorMap.values("text");
     for (int i = 0; i < values.size(); ++i)
         qDebug() << values.at(i);
+    emit error(errorMap);
 }
 
 QString QtBlueViaOAuth::getRetrievedAccessToken() {
