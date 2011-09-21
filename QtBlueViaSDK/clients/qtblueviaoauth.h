@@ -38,19 +38,9 @@ public:
     void getRequestToken();
     void getAccessToken(QString requestToken, QString requestTokenSecret, QString verificationCode);
 
-    QString getRetrievedAccessToken();
-    QString getRetrievedAccessTokenSecret();
-    QString getRetrievedRequestToken();
-    QString getRetrievedRequesTokenSecret();
-
 private:
     QString _consumerKey;
     QString _consumerSecret;
-    QString _requestToken;
-    QString _requestTokenSecret;
-    QString _accessToken;
-    QString _accessTokenSecret;
-
     OAuth *oAuth;
 
 signals:

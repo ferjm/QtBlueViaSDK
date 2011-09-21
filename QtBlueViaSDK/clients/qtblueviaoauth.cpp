@@ -66,9 +66,7 @@ void QtBlueViaOAuth::getAccessToken(QString requestToken, QString requestTokenSe
 }
 
 void QtBlueViaOAuth::onTemporaryTokenReceived(QString token, QString tokenSecret, QUrl authorizationUrl)
-{
-    this->_requestToken = token;
-    this->_requestTokenSecret = tokenSecret;
+{    
     qDebug() << "Token: " << token;
     qDebug() << "TokenSecret: " << tokenSecret;
     qDebug() << "Authorization URL: " << authorizationUrl.toString();
@@ -76,9 +74,7 @@ void QtBlueViaOAuth::onTemporaryTokenReceived(QString token, QString tokenSecret
 }
 
 void QtBlueViaOAuth::onAccTokensReceived(QString token, QString tokenSecret)
-{
-    this->_accessToken = token;
-    this->_accessTokenSecret = tokenSecret;
+{    
     qDebug() << "Token: " << token;
     qDebug() << "TokenSecret: " << tokenSecret;
     emit accessTokenRetrieved(token,tokenSecret);
@@ -90,20 +86,4 @@ void QtBlueViaOAuth::onError(QMultiMap<QString,QString> errorMap)
     for (int i = 0; i < values.size(); ++i)
         qDebug() << values.at(i);
     emit error(errorMap);
-}
-
-QString QtBlueViaOAuth::getRetrievedAccessToken() {
-    return this->_accessToken;
-}
-
-QString QtBlueViaOAuth::getRetrievedAccessTokenSecret() {
-    return this->_accessTokenSecret;
-}
-
-QString QtBlueViaOAuth::getRetrievedRequestToken() {
-    return this->_requestToken;
-}
-
-QString QtBlueViaOAuth::getRetrievedRequesTokenSecret() {
-    return this->_requestTokenSecret;
 }
