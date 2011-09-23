@@ -46,7 +46,7 @@ private:
 signals:
     void requestTokenRetrieved(QString token, QString tokenSecret, QUrl authorizationUrl);
     void accessTokenRetrieved(QString token, QString tokenSecret);
-    void error(QMultiMap<QString,QString>);
+    void error(QString);
 
 public slots:
     void onTemporaryTokenReceived(QString token, QString tokenSecret, QUrl authorizationUrl);

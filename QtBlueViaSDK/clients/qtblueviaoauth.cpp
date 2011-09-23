@@ -83,7 +83,8 @@ void QtBlueViaOAuth::onAccTokensReceived(QString token, QString tokenSecret)
 void QtBlueViaOAuth::onError(QMultiMap<QString,QString> errorMap)
 {
     QList<QString> values = errorMap.values("text");
-    for (int i = 0; i < values.size(); ++i)
+    for (int i = 0; i < values.size(); ++i) {
         qDebug() << values.at(i);
-    emit error(errorMap);
+        emit error(values.at(i));
+    }
 }
